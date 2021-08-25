@@ -22,16 +22,9 @@ class RetryNetworkRequestViewModel(
             try {
                 // if we catch a exception we will leave repeat function
                 // so we need another try and catch block
-                repeat(numberOfRetries) {
-                    try {
-                        loadRecentAndroidVersion()
-                        return@launch
-                    } catch (exception: Exception) {
-                        Timber.e(exception)
-                    }
-
+                retry(numberOfRetries) {
+                    loadRecentAndroidVersion()
                 }
-                loadRecentAndroidVersion()
 
             } catch (e: Exception) {
                 Timber.e(e)
@@ -39,6 +32,17 @@ class RetryNetworkRequestViewModel(
             }
 
         }
+    }
+
+    private suspend fun <T> retry(numberOfRetries: Int, block: suspend () -> T): T {
+        repeat(numberOfRetries) {
+            try {
+                block()
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
+        }
+        return block()
     }
 
     private suspend fun loadRecentAndroidVersion() {
