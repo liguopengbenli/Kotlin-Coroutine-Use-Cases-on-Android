@@ -1,36 +1,37 @@
 package com.lukaslechner.coroutineusecasesonandroid.usecases.coroutines.usecase12
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import java.math.BigInteger
 
 class FactorialCalculator(
     private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
 
-    fun calculateFactorial(
+    suspend fun calculateFactorial(
         factorialOf: Int,
         numberOfCoroutines: Int
-    ): BigInteger {
+    ): BigInteger =
 
-        // TODO: create sub range list *on background thread*
-        val subRanges = createSubRangeList(factorialOf, numberOfCoroutines)
-
-
-        // TODO: calculate factorial of each subrange in separate coroutine
-        // use calculateFactorialOfSubRange(subRange) therefore
+        withContext(defaultDispatcher) {
+            val subRanges = createSubRangeList(factorialOf, numberOfCoroutines)
 
 
-        // TODO: create factorial result by multiplying all sub-results and return this
-        // result
+            // calculate factorial of each subrange in separate coroutine
+            val finalList = subRanges.map { subRange ->
+                async {
+                    calculateFactorialOfSubRange(subRange)
+                }
+            }.awaitAll()
 
-        return BigInteger.ZERO
-    }
 
-    // TODO: execute on background thread
+            // create factorial result by multiplying all sub-results and return this
+            finalList.reduce { acc, i -> acc * i }
+        }
+
+
     fun calculateFactorialOfSubRange(
         subRange: SubRange
-    ): BigInteger {
+    ): BigInteger  {
         var factorial = BigInteger.ONE
         for (i in subRange.start..subRange.end) {
             factorial = factorial.multiply(BigInteger.valueOf(i.toLong()))
@@ -41,7 +42,7 @@ class FactorialCalculator(
     fun createSubRangeList(
         factorialOf: Int,
         numberOfSubRanges: Int
-    ): List<SubRange> {
+    ): List<SubRange>  {
         val quotient = factorialOf.div(numberOfSubRanges)
         val rangesList = mutableListOf<SubRange>()
 
