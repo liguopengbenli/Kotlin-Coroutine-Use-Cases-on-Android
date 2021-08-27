@@ -9,6 +9,7 @@ import timber.log.Timber
 
 class CoroutineUsecasesOnAndroidApplication : Application() {
 
+    //create a custom scope in reuse in many places, so supervisorJob
     private val applicationScope = CoroutineScope(SupervisorJob())
 
     val androidVersionRepository by lazy {
