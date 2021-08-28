@@ -3,10 +3,7 @@ package com.lukaslechner.coroutineusecasesonandroid.usecases.coroutines.usecase1
 import androidx.lifecycle.viewModelScope
 import com.lukaslechner.coroutineusecasesonandroid.base.BaseViewModel
 import com.lukaslechner.coroutineusecasesonandroid.mock.MockApi
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.*
 
 class ExceptionHandlingViewModel(
     private val api: MockApi = mockApi()
@@ -50,25 +47,22 @@ class ExceptionHandlingViewModel(
                     api.getAndroidVersionFeatures(29)
                 }
 
-                val oreoFeatures = try {
-                    oreoFeaturesDeferred.await()
-                } catch (e: Exception) {
-                    null
+                val features = listOf(
+                    oreoFeaturesDeferred,
+                    pieFeaturesDeferred,
+                    android10FeaturesDeferred
+                ).mapNotNull {
+                    try {
+                        it.await()
+                    } catch (e: java.lang.Exception) {
+                        if (e is CancellationException) {
+                            // if we cancel we want to complete immediately
+                            throw e
+                        }
+                        null
+                    }
                 }
 
-                val pieFeatures = try {
-                    pieFeaturesDeferred.await()
-                } catch (e: Exception) {
-                    null
-                }
-
-                val android10Features = try {
-                    android10FeaturesDeferred.await()
-                } catch (e: Exception) {
-                    null
-                }
-                // list of not null only add the item not null
-                val features = listOfNotNull(oreoFeatures, pieFeatures, android10Features)
                 uiState.value = UiState.Success(versionFeatures = features)
 
             }
