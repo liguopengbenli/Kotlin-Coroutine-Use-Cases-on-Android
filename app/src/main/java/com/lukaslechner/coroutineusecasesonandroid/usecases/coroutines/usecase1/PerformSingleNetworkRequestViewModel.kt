@@ -21,7 +21,7 @@ class PerformSingleNetworkRequestViewModel(
                 uiState.value = UiState.Success(recentAndroidVersion)
             } catch (e: Exception) {
                 Timber.e(e)
-                uiState.value = UiState.Error("Network failed")
+                uiState.value = UiState.Error(networkRequestFailedMessage)
             }
 
         }
