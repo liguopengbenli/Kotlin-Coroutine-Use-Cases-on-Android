@@ -2,6 +2,7 @@ package com.lukaslechner.coroutineusecasesonandroid.usecases.coroutines.usecase1
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.lukaslechner.coroutineusecasesonandroid.mock.mockAndroidVersions
+import com.lukaslechner.coroutineusecasesonandroid.utils.MainCoroutineScopeRule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -11,26 +12,19 @@ import org.junit.rules.TestRule
 
 class PerformSingleNetworkRequestViewModelTest {
 
-    @Before
-    fun setUp() {
-    }
-
-    @After
-    fun tearDown() {
-    }
-
     @get:Rule
     val testInstantTaskExecutorRule: TestRule = InstantTaskExecutorRule()
 
     private val receivedUiState = mutableListOf<UiState>()
 
+    @get: Rule
+    val mainCoroutineScopeRule = MainCoroutineScopeRule()
+
+
     //kotlin feature test name ``
     @Test
     fun `should return Success when network request is successful`() {
         //Arrange
-        val dispatcher = TestCoroutineDispatcher()
-        Dispatchers.setMain(dispatcher)
-
         val fakeApi = FakeSuccessApi()
         val viewmodel = PerformSingleNetworkRequestViewModel(fakeApi)
 
@@ -48,8 +42,6 @@ class PerformSingleNetworkRequestViewModelTest {
             ),
             receivedUiState
         )
-        Dispatchers.resetMain()
-        dispatcher.cleanupTestCoroutines()
     }
 
     private fun observeViewModel(viewmodel: PerformSingleNetworkRequestViewModel) {
@@ -62,11 +54,8 @@ class PerformSingleNetworkRequestViewModelTest {
     @Test
     fun `should return Error when network request failed`() {
         // Arrange
-        val dispatcher = TestCoroutineDispatcher()
-        Dispatchers.setMain(dispatcher)
         val fakeAPi = FakeErrorApi()
         val viewModel = PerformSingleNetworkRequestViewModel(fakeAPi)
-
         observeViewModel(viewModel)
 
         // Act
@@ -80,8 +69,6 @@ class PerformSingleNetworkRequestViewModelTest {
             ),
             receivedUiState
         )
-
-        Dispatchers.resetMain()
-        dispatcher.cleanupTestCoroutines()
     }
+
 }
