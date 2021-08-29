@@ -21,7 +21,7 @@ class Perform2SequentialNetworkRequestsViewModel(
                 val features = mockApi.getAndroidVersionFeatures(mostRecentVersion.apiLevel)
                 uiState.value = UiState.Success(features)
             } catch (e: Exception) {
-                uiState.value = UiState.Error("Network request failed! + $e")
+                uiState.value = UiState.Error(networkRequestFailedMessage)
             }
         }
     }
