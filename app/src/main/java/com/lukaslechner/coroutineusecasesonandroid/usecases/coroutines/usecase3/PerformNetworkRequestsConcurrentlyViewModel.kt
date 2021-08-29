@@ -23,7 +23,6 @@ class PerformNetworkRequestsConcurrentlyViewModel(
             } catch (e: Exception) {
                 uiState.value = UiState.Error("network failed")
             }
-
         }
     }
 
